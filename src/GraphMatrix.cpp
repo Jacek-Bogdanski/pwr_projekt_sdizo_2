@@ -3,6 +3,7 @@
 //
 
 #include <iostream>
+#include <iomanip>
 #include <vector>
 #include <limits>
 #include <queue>
@@ -40,9 +41,9 @@ void GraphMatrix::printMatrix() {
     for (int i = 0; i < verticlesNum; i++) {
         for (int j = 0; j < verticlesNum; j++) {
             if (adjacencyMatrix[i][j] == std::numeric_limits<int>::max()) {
-                std::cout << "∞ ";
+                std::cout << "   ∞ ";
             } else {
-                std::cout << adjacencyMatrix[i][j] << " ";
+                std::cout << std::setw(4)<<adjacencyMatrix[i][j] << " ";
             }
         }
         std::cout << std::endl;

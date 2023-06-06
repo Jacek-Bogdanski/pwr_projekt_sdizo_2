@@ -6,9 +6,17 @@
 #include "src/GraphMatrix.h"
 #include "src/GraphList.h"
 
+#include "src/MenuHandler.cpp"
+
 
 int main() {
+//    SetConsoleOutputCP(CP_UTF8);
 
+    // Autor: Jacek Bogdański, 263895
+
+    MenuHandler menu;
+    menu.mainLoop();
+return 0;
 
     std::cout << "WERSJA MACIERZOWA" << std::endl;
     {
