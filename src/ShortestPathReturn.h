@@ -6,6 +6,7 @@
 #define PWR_PROJEKT_SDIZO_2_SHORTESTPATHRETURN_H
 
 #include <vector>
+#include <string>
 
 struct ShortestPathReturn{
     std::vector<int> distances;

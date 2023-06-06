@@ -5,6 +5,7 @@
 #include <iostream>
 #include <vector>
 #include <queue>
+#include <tuple>
 #include "GraphList.h"
 
 /**
@@ -125,7 +126,7 @@ ShortestPathReturn GraphList::dijkstraShortestPath(int start) {
 
     std::priority_queue<std::tuple<int, int, std::string>, std::vector<std::tuple<int, int, std::string>>, std::greater<std::tuple<int, int, std::string>>> queue;
     queue.emplace(0, start, "0 ");
-
+    printf("step 31\n");
     while (!queue.empty()) {
         int currentVertex = std::get<0>(queue.top());
         int currentDistance = std::get<1>(queue.top());
@@ -135,20 +136,27 @@ ShortestPathReturn GraphList::dijkstraShortestPath(int start) {
         // zakonczenie, jesli obecny dystans jest wiekszy od zapisanego
         if (currentDistance > distances[currentVertex])
             continue;
-
+        printf("step 32\n");
         // przejście przez sąsiadów danego wierzchołka
         for (const auto &neighbor: adjacencyList[currentVertex]) {
+            printf("step 33 - %d, %d\n",neighbor.first,neighbor.second);
             int neighborVertex = neighbor.first;
             int edgeWeight = neighbor.second;
             int distanceThroughCurrent = currentDistance + edgeWeight;
+            printf("step 34\n");
 
             // jeśli znaleziono krótszą drogę, dodaj do kolejki i zapisz
             if (distanceThroughCurrent < distances[neighborVertex]) {
+                printf("step 341\n");
                 queue.emplace(distanceThroughCurrent, neighborVertex,
                               currentPath + std::to_string(neighborVertex) + " ");
+                printf("step 342\n");
                 distances[neighborVertex] = distanceThroughCurrent;
+                printf("step 343\n");
                 paths[neighborVertex] = currentPath + std::to_string(neighborVertex) + " ";
+                printf("step 344\n");
             }
+            printf("step 345\n");
         }
     }
 

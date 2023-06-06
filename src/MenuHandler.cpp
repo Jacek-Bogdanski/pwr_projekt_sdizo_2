@@ -11,6 +11,9 @@
 #include <iomanip>
 #include <math.h>
 #include <vector>
+#include <Windows.h>
+#include <profileapi.h>
+#include <unistd.h>
 #include "GraphList.h"
 #include "GraphMatrix.h"
 
@@ -115,7 +118,7 @@ private:
     /**
      * Pobranie czasu systemowego, źródło: antoni.sterna.staff.iiar.pwr.edu.pl
      */
-    /*
+
    //-------------------------------------------------------------------------
        long long int read_QPC() {
            LARGE_INTEGER count;
@@ -123,17 +126,17 @@ private:
            return ((long long int) count.QuadPart);
        }
    //-------------------------------------------------------------------------
-*/
+
 
     /**
      *
      */
     void handleData() {
-        char menu_data[] = "# OPERACJE:  \n#   1. Wybierz plik     \n#   2. Wygeneruj plik \n#   3. Wczytaj dane z pliku     \n#   4. Wyczyść dane   \n#   0. Powrot        \n\nWybierz z listy: ";
+        char menu_data[] = "# OPERACJE:  \n#   1. Wybierz plik     \n#   2. Wygeneruj plik \n#   3. Wczytaj dane z pliku     \n#   4. Wyczysc dane   \n#   0. Powrot        \n\nWybierz z listy: ";
 
         while (true) {
-            system("cls");
-            printf("%s", "\n# Dane wejściowe\n\n");
+            printf("\n\n\n\n\n\n\n\n\n");
+            printf("%s", "\n# Dane wejsciowe\n\n");
             printf("Plik: %s\n", file_name.c_str());
             printf("Rozmiar wczytanych danych: %d\n\n", edgesNum);
 
@@ -151,7 +154,7 @@ private:
                     return;
                 case 1:
                     // ładowanie pliku o innej nazwie
-                    printf("%s", "\nPodaj nazwę pliku: ");
+                    printf("%s", "\nPodaj nazwe pliku: ");
                     scanf("%s", tmp);
                     fflush(stdin);
 
@@ -161,14 +164,14 @@ private:
                         file_name = tmp;
                         readTestData();
 
-                        printf("%s", "\nPlik został załadowany. \n\n");
+                        printf("%s", "\nPlik zostal zaladowany. \n\n");
                     }
                     return;
 
                 case 3:
                     // ładowanie danych z ustawionego pliku
                     readTestData();
-                    printf("%s", "\nPlik został załadowany. \n\n");
+                    printf("%s", "\nPlik zostal zaladowany. \n\n");
                     return;
 
                 case 4:
@@ -178,21 +181,21 @@ private:
                     verticlesNum = 0;
                     startVertex = 0;
                     endVertex = 0;
-                    printf("%s", "\nDane zostały wyczyszczone. \n\n");
+                    printf("%s", "\nDane zostaly wyczyszczone. \n\n");
                     return;
 
                 case 2:
                     // generowanie danych
-                    printf("%s", "\nPodaj ilość wierzcholkow: ");
+                    printf("%s", "\nPodaj ilosc wierzcholkow: ");
                     scanf("%d", &verticlesNum);
 
-                    printf("%s", "\nPodaj ilość krawedzi: ");
+                    printf("%s", "\nPodaj ilosc krawedzi: ");
                     scanf("%d", &edgesNum);
                     fflush(stdin);
 
                     this->generateData(verticlesNum, edgesNum);
                     if (fileExists(file_name)) {
-                        printf("%s", "\nPlik został utworzony i załadowany. \n\n");
+                        printf("%s", "\nPlik zostal utworzony i zaladowany. \n\n");
                     } else {
                         printf("%s", "\nWystapil blad generowania danych. \n\n");
                     }
@@ -207,7 +210,7 @@ private:
         this->edgesNum = edgesNum;
 
         if(edgesNum < verticlesNum){
-            printf("%s", "\nLiczba krawedzi nie moze byc mniejsza niz liczba wierzchlkow. \n\n");
+            printf("%s", "\nLiczba krawedzi nie moze byc mniejsza niz liczba wierzcholkow. \n\n");
             return;
         }
 
@@ -261,24 +264,21 @@ private:
 
             file.close();
 
+
             if (fileExists(file_name)) {
                 readTestData();
+//                ShortestPathReturn dijkstraReturn = graph_list->dijkstraShortestPath(startVertex);
+//                for (int i = 0; i < dijkstraReturn.distances.size(); ++i) {
+//                    if (dijkstraReturn.distances[i] == std::numeric_limits<int>::max()) {
+//                        isConnected = false;
+//                    }
+//                }
+            }
+            else{
+                isConnected = false;
             }
 
-            delete graph_matrix;
-            delete graph_list;
-            graph_matrix = new GraphMatrix(verticlesNum);
-            graph_list = new GraphList(verticlesNum);
-            for (auto row: test_data) {
-                graph_matrix->addEdge(get<0>(row), get<1>(row), get<2>(row));
-                graph_list->addEdge(get<0>(row), get<1>(row), get<2>(row));
-            }
-            ShortestPathReturn dijkstraReturn = graph_list->dijkstraShortestPath(startVertex);
-            for (int i = 0; i < dijkstraReturn.distances.size(); ++i) {
-                if (dijkstraReturn.distances[i] == std::numeric_limits<int>::max()) {
-                    isConnected = false;
-                }
-            }
+
         } while(!isConnected);
     }
 
@@ -289,7 +289,7 @@ private:
 
         // pętla menu
         while (true) {
-            system("cls");
+            printf("\n\n\n\n\n\n\n\n\n");
             printf("%s", "\n# MST\n\n");
             // pokazanie menu tablicy
             printf("   1. Wczytaj z pliku\n   2. Wyswietl\n   3. Algorytm Prima\n   4. Pomiar czasu\n   0. Powrot\n");
@@ -304,7 +304,7 @@ private:
                 case 1:
                     readTestData();
 
-                    printf("%s", "\nPlik został załadowany. \n\n");
+                    printf("%s", "\nPlik zostal zaladowany. \n\n");
                     break;
 
                 case 2:
@@ -332,7 +332,7 @@ private:
                     }
                     std::cout << std::endl;
                     {
-                        std::cout << "Minimalne drzewo rozpinające (lista, algorytm Prima):" << std::endl;
+                        std::cout << "Minimalne drzewo rozpinajace (lista, algorytm Prima):" << std::endl;
                         GraphList primMST = graph_list->primMST();
                         primMST.printList();
                         std::cout << "MST = " << primMST.getEdgesSum() << std::endl;
@@ -344,9 +344,7 @@ private:
                 case 4:
                     // pomiary czasu
 
-                    int n = 100;
-
-                    printf("%s", "\nPodaj ilość wierzcholkow: ");
+                    printf("%s", "\nPodaj ilosc wierzcholkow: ");
                     scanf("%d", &verticlesNum);
 
                     printf("%s", "\nPodaj gestosc grafu: ");
@@ -363,13 +361,33 @@ private:
                         edgesNum = 1;
                     }
 
-                    for(int i = 0;i<n;i++){
+                    long long int sumElapsedMatrix = 0;
+                    long long int sumElapsedList = 0;
+                    int n = 10;
+
+                    for(int i = 1;i<=n;i++){
                         this->generateData(verticlesNum,edgesNum);
 
+                        start = read_QPC();
+                        GraphList primMST1 = graph_list->primMST();
+                        sumElapsedList += read_QPC() - start;
 
-                        printf("%d.   %f krawedzi ", i, result);
+                        start = read_QPC();
+                        GraphMatrix primMST2 = graph_matrix->primMST();
+                        sumElapsedMatrix = read_QPC() - start;
+
+                        cout << "M-- Time [ms] = " << fixed << showpoint<< setprecision(3) << (1000.0 * sumElapsedMatrix) / frequency / i<< endl;
+                        cout << "M-- Time [us] = " << fixed << showpoint<< setprecision(3) << (1000000.0 * sumElapsedMatrix) / frequency / i<< endl << endl;
+
+                        cout << "L-- Time [ms] = " << fixed << showpoint<< setprecision(3) << (1000.0 * sumElapsedList) / frequency / i<< endl;
+                        cout << "L-- Time [us] = " << fixed << showpoint<< setprecision(3) << (1000000.0 * sumElapsedList) / frequency / i<< endl << endl;
                     }
 
+                    cout << "M Time [ms] = " << fixed << showpoint<< setprecision(3) << (1000.0 * sumElapsedMatrix) / frequency / n<< endl;
+                    cout << "M Time [us] = " << fixed << showpoint<< setprecision(3) << (1000000.0 * sumElapsedMatrix) / frequency / n<< endl << endl;
+
+                    cout << "L Time [ms] = " << fixed << showpoint<< setprecision(3) << (1000.0 * sumElapsedList) / frequency / n<< endl;
+                    cout << "L Time [us] = " << fixed << showpoint<< setprecision(3) << (1000000.0 * sumElapsedList) / frequency / n<< endl << endl;
                     break;
             }
 
@@ -379,14 +397,14 @@ private:
 
     void handleShortestPath() {
 
-        int input;
+        int input, density;
 
         // pętla menu
         while (true) {
-            system("cls");
+            printf("\n\n\n\n\n\n\n\n\n");
             printf("%s", "\n# MST\n\n");
             // pokazanie menu tablicy
-            printf("   1. Wczytaj z pliku\n   2. Wyswietl\n   3. Algorytm Dijkstry\n   0. Powrot\n");
+            printf("   1. Wczytaj z pliku\n   2. Wyswietl\n   3. Algorytm Dijkstry\n   4. Pomiar czasu \n   0. Powrot\n");
 
             scanf("%d", &input);
             fflush(stdin);
@@ -398,7 +416,7 @@ private:
                 case 1:
                     readTestData();
 
-                    printf("%s", "\nPlik został załadowany. \n\n");
+                    printf("%s", "\nPlik zostal zaladowany. \n\n");
                     break;
 
                 case 2:
@@ -419,7 +437,7 @@ private:
                 case 3:
                     std::cout << std::endl;
                     {
-                        std::cout << "Najkrótsze drogi z wierzchołka " << startVertex
+                        std::cout << "Najkrotsze drogi z wierzcholka " << startVertex
                                   << " (macierz, algorytm Dijkstry):" << std::endl;
                         ShortestPathReturn dijkstraReturn = graph_matrix->dijkstraShortestPath(startVertex);
                         std::cout << "Start = " << startVertex << std::endl;
@@ -431,7 +449,7 @@ private:
                     }
                     std::cout << std::endl;
                     {
-                        std::cout << "Najkrótsze drogi z wierzchołka " << startVertex << " (lista, algorytm Dijkstry):"
+                        std::cout << "Najkrotsze drogi z wierzcholka " << startVertex << " (lista, algorytm Dijkstry):"
                                   << std::endl;
                         ShortestPathReturn dijkstraReturn = graph_list->dijkstraShortestPath(startVertex);
                         std::cout << "Start = " << startVertex << std::endl;
@@ -450,6 +468,49 @@ private:
 
                     std::cout << std::endl;
                     break;
+
+                case 4:
+                    // pomiary czasu
+
+                    printf("%s", "\nPodaj ilosc wierzcholkow: ");
+                    scanf("%d", &verticlesNum);
+
+                    printf("%s", "\nPodaj gestosc grafu: ");
+                    scanf("%d", &density);
+                    fflush(stdin);
+
+                    double dens = ((double)density)/100;
+                    double result = (dens * verticlesNum*verticlesNum - dens * verticlesNum) / 2;
+
+                    // d = 2*verticlesNum / edgesNum / (edgesNum-1)
+
+                    edgesNum = floor(result);
+                    if(edgesNum == 0){
+                        edgesNum = 1;
+                    }
+
+                    long long int sumElapsedMatrix = 0;
+                    long long int sumElapsedList = 0;
+                    int n = 1;
+
+                    for(int i = 0;i<n;i++){
+                        this->generateData(verticlesNum,edgesNum);
+
+                        start = read_QPC();
+                        ShortestPathReturn dijkstraReturn1 = graph_matrix->dijkstraShortestPath(startVertex);
+                        sumElapsedList += read_QPC() - start;
+
+                        start = read_QPC();
+                        ShortestPathReturn dijkstraReturn2 = graph_list->dijkstraShortestPath(startVertex);
+                        sumElapsedMatrix = read_QPC() - start;
+                    }
+
+                    cout << "M Time [ms] = " << fixed << showpoint<< setprecision(3) << (1000.0 * sumElapsedMatrix) / frequency / n<< endl;
+                    cout << "M Time [us] = " << fixed << showpoint<< setprecision(3) << (1000000.0 * sumElapsedMatrix) / frequency / n<< endl << endl;
+
+                    cout << "L Time [ms] = " << fixed << showpoint<< setprecision(3) << (1000.0 * sumElapsedList) / frequency / n<< endl;
+                    cout << "L Time [us] = " << fixed << showpoint<< setprecision(3) << (1000000.0 * sumElapsedList) / frequency / n<< endl << endl;
+                    break;
             }
 
             system("pause");
@@ -461,14 +522,14 @@ public:
  * Główna funkcja
  */
     void mainLoop() {
-        char menu_header[] = "\n### Projekt SDiZO, PWR 2023 ###    \n### Autor:  Jacek Bogdański ###\n\n";
-        char menu_1[] = "# MENU PROGRAMU:\n#   1. MST          \n#   2. Najkrotsza sciezka w grafie          \n#   3. Dane wejściowe\n#   0. Koniec                 \n\nWybierz z listy: ";
+        char menu_header[] = "\n### Projekt SDiZO, PWR 2023 ###    \n### Autor:  Jacek Bogdanski ###\n\n";
+        char menu_1[] = "# MENU PROGRAMU:\n#   1. MST          \n#   2. Najkrotsza sciezka w grafie          \n#   3. Dane wejsciowe\n#   0. Koniec                 \n\nWybierz z listy: ";
 
         int input;
 
         // pętla menu głównego
         while (true) {
-            system("cls");
+            printf("\n\n\n\n\n\n\n\n\n");
             printf("%s", menu_header);
 
             printf("Plik: %s\n", file_name.c_str());
@@ -499,6 +560,7 @@ public:
                     handleData();
                     break;
             }
+
         }
     }
 };
