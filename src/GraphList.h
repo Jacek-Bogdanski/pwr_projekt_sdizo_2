@@ -24,6 +24,10 @@ class GraphList {
 
     public:
         /**
+        * Domyslny konstruktor
+        */
+        GraphList();
+        /**
         * Konstruktor
         * @param verticlesNum liczba wierzchołków
         */
@@ -60,6 +64,17 @@ class GraphList {
          */
         ShortestPathReturn dijkstraShortestPath(int start);
 
+        /**
+         * Metoda czyszczaca dane grafu i ustawiajaca nowy rozmiar
+         * @param verticlesNum
+         */
+        void resize(int verticlesNum);
+
+        /**
+        * Usuwa krawedzie wychodzace z danego wierzcholka
+        * @param start
+        */
+        void removeEdges(int start);
 };
 
 

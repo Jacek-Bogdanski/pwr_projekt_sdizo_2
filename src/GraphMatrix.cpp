@@ -9,6 +9,12 @@
 #include <queue>
 #include "GraphMatrix.h"
 
+GraphMatrix::GraphMatrix(){
+    verticlesNum = 0;
+    // Inicjalizacja macierzy sąsiedztwa z wartościami infinity
+    adjacencyMatrix.resize(verticlesNum, std::vector<int>(verticlesNum, std::numeric_limits<int>::max()));
+}
+
 /**
  * Konstruktor
  * @param verticlesNum liczba wierzchołków
@@ -87,6 +93,7 @@ int GraphMatrix::getEdgesSum() {
  */
 GraphMatrix GraphMatrix::primMST() {
     GraphMatrix result(this->verticlesNum);
+    if(verticlesNum < 1) return result;
 
     // Kolejka priorytetowa najkrótszych krawędzi
     std::priority_queue<std::pair<int, int>, std::vector<std::pair<int, int>>, std::greater<std::pair<int, int>>> shortestEdges;
@@ -99,7 +106,8 @@ GraphMatrix GraphMatrix::primMST() {
     visited[startVertex] = true;
 
     // Dodanie do kolejki priorytetowej krawędzi wychodzących z aktualnego wierzchołka
-    for (int i = 1; i < verticlesNum; i++) {
+    for (int i = 0; i < verticlesNum; i++) {
+        if(startVertex == i) continue;
         if (adjacencyMatrix[startVertex][i] != std::numeric_limits<int>::max()) {
             shortestEdges.push(std::make_pair(adjacencyMatrix[startVertex][i], i));
         }
@@ -120,9 +128,13 @@ GraphMatrix GraphMatrix::primMST() {
         visited[currentVertex] = true;
 
         // Dodaj do kolejki wszystkie krawędzie wychodzące z aktualnego wierzchołka
-        for (int i = 1; i < verticlesNum; ++i) {
+        for (int i = 0; i < verticlesNum; i++) {
+            if(currentVertex == i) continue;
             if (!visited[i] && adjacencyMatrix[currentVertex][i] != std::numeric_limits<int>::max()) {
                 shortestEdges.push(std::make_pair(adjacencyMatrix[currentVertex][i], i));
+            }
+            if (adjacencyMatrix[i][currentVertex] != std::numeric_limits<int>::max()) {
+                shortestEdges.push(std::make_pair(adjacencyMatrix[i][currentVertex], i));
             }
         }
 
@@ -138,11 +150,23 @@ GraphMatrix GraphMatrix::primMST() {
  * @return ShortestPathReturn - lista wag dróg i lista ścieżek
  */
 ShortestPathReturn GraphMatrix::dijkstraShortestPath(int start) {
+    bool smaller = false;
+    if(verticlesNum < 1){
+        smaller = true;
+        verticlesNum = 1;
+    }
     // Odległości od wierzkolka startowego do pozostałych wierzchołków
     std::vector<int> distances(verticlesNum, std::numeric_limits<int>::max());
-
     // ścieżki
     std::vector<std::string> paths(verticlesNum, "");
+
+    if(smaller){
+        ShortestPathReturn out;
+        out.distances = distances;
+        out.paths = paths;
+
+        return out;
+    }
 
     distances[start] = 0;
     paths[start] = "0 ";
@@ -151,8 +175,8 @@ ShortestPathReturn GraphMatrix::dijkstraShortestPath(int start) {
     queue.emplace(0, start, "0 ");
 
     while (!queue.empty()) {
-        int currentVertex = std::get<0>(queue.top());
-        int currentDistance = std::get<1>(queue.top());
+        int currentVertex = std::get<1>(queue.top());
+        int currentDistance = std::get<0>(queue.top());
         std::string currentPath = std::get<2>(queue.top());
         queue.pop();
 
@@ -180,5 +204,17 @@ ShortestPathReturn GraphMatrix::dijkstraShortestPath(int start) {
     out.distances = distances;
     out.paths = paths;
 
+    for(int i=0;i<distances.size();i++){
+        if(distances[i]<0){
+            out.hasNegative = true;
+        }
+    }
+
     return out;
+}
+
+void GraphMatrix::resize(int n) {
+    verticlesNum = n;
+    adjacencyMatrix.clear();
+    adjacencyMatrix.resize(verticlesNum, std::vector<int>(verticlesNum, std::numeric_limits<int>::max()));
 }

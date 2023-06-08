@@ -25,6 +25,11 @@ class GraphMatrix {
     public:
 
         /**
+         * Domyslny konstruktor
+         */
+        GraphMatrix();
+
+        /**
          * Konstruktor
          * @param verticlesNum liczba wierzchołków
          */
@@ -66,6 +71,12 @@ class GraphMatrix {
          */
         ShortestPathReturn dijkstraShortestPath(int start);
 
+
+        /**
+         * Metoda czyszczaca dane grafu i ustawiajaca nowy rozmiar
+         * @param verticlesNum
+         */
+        void resize(int verticlesNum);
 };
 
 

@@ -8,6 +8,11 @@
 #include <tuple>
 #include "GraphList.h"
 
+GraphList::GraphList(){
+    verticlesNum = 0;
+    adjacencyList.resize(0);
+}
+
 /**
  * Konstruktor
  * @param verticlesNum liczba wierzchołków
@@ -29,8 +34,14 @@ void GraphList::addEdge(int start, int end, int weight) {
         return;
     }
 
+    if(start == 0 && end == 0 && weight == 0){
+        return;
+    }
+
     adjacencyList[start].emplace_back(end, weight);
+//    adjacencyList[end].emplace_back(start, weight);
 }
+
 
 /**
  * Wypisanie listy sąsiadów
@@ -64,9 +75,10 @@ int GraphList::getEdgesSum() {
  */
 GraphList GraphList::primMST() {
     GraphList result(this->verticlesNum);
+    if(verticlesNum < 1) return result;
 
     // Kolejka priorytetowa najkrótszych krawędzi
-    std::priority_queue<std::pair<int, int>, std::vector<std::pair<int, int>>, std::greater<std::pair<int, int>>> shortestEdges;
+    std::priority_queue<std::tuple<int, int, int>, std::vector<std::tuple<int, int, int>>, std::greater<std::tuple<int, int, int>>> shortestEdges;
 
     // Odwiedzone wierzchołki
     std::vector<bool> visited(verticlesNum, false);
@@ -75,18 +87,18 @@ GraphList GraphList::primMST() {
     int startVertex = 0;
     visited[startVertex] = true;
 
-    // Dodanie kolejki priorytetowej krawędzi wychodzących z wierzchołka startowego
-    for (const auto &neighbor: adjacencyList[startVertex]) {
-        int dest = neighbor.first;
-        int w = neighbor.second;
-        shortestEdges.emplace(w, dest);
+// Dodanie kolejki priorytetowej krawędzi wychodzących z wierzchołka startowego
+    for(int i=0;i<adjacencyList[startVertex].size();i++){
+        int w = adjacencyList[startVertex][i].second;
+        int dest = adjacencyList[startVertex][i].first;
+        shortestEdges.push(std::make_tuple(w, startVertex, dest));
     }
 
-    int prevVertex = startVertex;
-
     while (!shortestEdges.empty()) {
-        int weight = shortestEdges.top().first;
-        int currentVertex = shortestEdges.top().second;
+        int weight = std::get<0>(shortestEdges.top());
+        int prevVertex = std::get<1>(shortestEdges.top());
+        int currentVertex = std::get<2>(shortestEdges.top());
+
         shortestEdges.pop();
 
         // kontynuuj, jesli odwiedzony
@@ -97,13 +109,22 @@ GraphList GraphList::primMST() {
         result.addEdge(prevVertex, currentVertex, weight);
 
         // Dodanie do kolejki priorytetowej krawędzi wychodzących z aktualnego wierzchołka
-        for (const auto &neighbor: adjacencyList[currentVertex]) {
-            int destination = neighbor.first;
-            int edgeWeight = neighbor.second;
-            shortestEdges.emplace(edgeWeight, destination);
+        for(int i=0;i<adjacencyList[currentVertex].size();i++){
+            int w = adjacencyList[currentVertex][i].second;
+            int dest = adjacencyList[currentVertex][i].first;
+            shortestEdges.push(std::make_tuple(w, currentVertex, dest));
         }
+        for(int k=0;k<verticlesNum;k++){
+            if(k==currentVertex) continue;
+            if(k==prevVertex) continue;
 
-        prevVertex = currentVertex;
+            for(int i=0;i<adjacencyList[k].size();i++){
+                if(adjacencyList[k][i].first != currentVertex) continue;
+                int w = adjacencyList[k][i].second;
+                int dest = adjacencyList[k][i].first;
+                shortestEdges.push(std::make_tuple(w, dest, k));
+            };
+        }
     }
 
     return result;
@@ -115,54 +136,69 @@ GraphList GraphList::primMST() {
  * @return ShortestPathReturn - lista wag dróg i lista ścieżek
  */
 ShortestPathReturn GraphList::dijkstraShortestPath(int start) {
+    bool smaller = false;
+    if(verticlesNum < 1){
+        smaller = true;
+        verticlesNum = 1;
+    }
     // Odległości od wierzkolka startowego do pozostałych wierzchołków
     std::vector<int> distances(verticlesNum, std::numeric_limits<int>::max());
-
     // ścieżki
     std::vector<std::string> paths(verticlesNum, "");
+
+    if(smaller){
+        ShortestPathReturn out;
+        out.distances = distances;
+        out.paths = paths;
+
+        return out;
+    }
 
     distances[start] = 0;
     paths[start] = "0 ";
 
     std::priority_queue<std::tuple<int, int, std::string>, std::vector<std::tuple<int, int, std::string>>, std::greater<std::tuple<int, int, std::string>>> queue;
     queue.emplace(0, start, "0 ");
-    printf("step 31\n");
     while (!queue.empty()) {
-        int currentVertex = std::get<0>(queue.top());
-        int currentDistance = std::get<1>(queue.top());
+        int currentVertex = std::get<1>(queue.top());
+        int currentDistance = std::get<0>(queue.top());
         std::string currentPath = std::get<2>(queue.top());
         queue.pop();
 
         // zakonczenie, jesli obecny dystans jest wiekszy od zapisanego
         if (currentDistance > distances[currentVertex])
             continue;
-        printf("step 32\n");
         // przejście przez sąsiadów danego wierzchołka
-        for (const auto &neighbor: adjacencyList[currentVertex]) {
-            printf("step 33 - %d, %d\n",neighbor.first,neighbor.second);
-            int neighborVertex = neighbor.first;
-            int edgeWeight = neighbor.second;
+
+        for(int i=0;i<adjacencyList[currentVertex].size();i++) {
+            int neighborVertex = adjacencyList[currentVertex][i].first;
+            int edgeWeight = adjacencyList[currentVertex][i].second;
             int distanceThroughCurrent = currentDistance + edgeWeight;
-            printf("step 34\n");
 
             // jeśli znaleziono krótszą drogę, dodaj do kolejki i zapisz
             if (distanceThroughCurrent < distances[neighborVertex]) {
-                printf("step 341\n");
                 queue.emplace(distanceThroughCurrent, neighborVertex,
                               currentPath + std::to_string(neighborVertex) + " ");
-                printf("step 342\n");
                 distances[neighborVertex] = distanceThroughCurrent;
-                printf("step 343\n");
                 paths[neighborVertex] = currentPath + std::to_string(neighborVertex) + " ";
-                printf("step 344\n");
             }
-            printf("step 345\n");
         }
     }
-
     ShortestPathReturn out;
     out.distances = distances;
     out.paths = paths;
 
+    for(int i=0;i<distances.size();i++){
+        if(distances[i]<0){
+            out.hasNegative = true;
+        }
+    }
+
     return out;
+}
+
+void GraphList::resize(int n){
+    verticlesNum = n;
+    adjacencyList.clear();
+    adjacencyList.resize(n);
 }

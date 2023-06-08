@@ -11,6 +11,7 @@
 struct ShortestPathReturn{
     std::vector<int> distances;
     std::vector<std::string> paths;
+    bool hasNegative = false;
 };
 
 #endif //PWR_PROJEKT_SDIZO_2_SHORTESTPATHRETURN_H

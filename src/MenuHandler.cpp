@@ -26,13 +26,10 @@ class MenuHandler {
 
 public:
     MenuHandler(){
-        graph_matrix = new GraphMatrix (0);
-        graph_list = new GraphList(0);
+        QueryPerformanceFrequency((LARGE_INTEGER *)&frequency);
     };
 
     ~MenuHandler(){
-        delete graph_matrix;
-        delete graph_list;
     };
 
 private:
@@ -44,8 +41,8 @@ private:
     int endVertex = 0;
 
 
-    GraphMatrix * graph_matrix;
-    GraphList * graph_list;
+    GraphMatrix graph_matrix;
+    GraphList graph_list;
 
     vector<tuple<int, int, int>> test_data;
 
@@ -100,13 +97,11 @@ private:
             }
             file.close();
 
-            delete graph_matrix;
-            delete graph_list;
-            graph_matrix = new GraphMatrix(verticlesNum);
-            graph_list = new GraphList(verticlesNum);
+            graph_matrix.resize(verticlesNum);
+            graph_list.resize(verticlesNum);
             for (auto row: test_data) {
-                graph_matrix->addEdge(get<0>(row), get<1>(row), get<2>(row));
-                graph_list->addEdge(get<0>(row), get<1>(row), get<2>(row));
+                graph_matrix.addEdge(get<0>(row), get<1>(row), get<2>(row));
+                graph_list.addEdge(get<0>(row), get<1>(row), get<2>(row));
             }
         } else {
             cout << "file open error" << endl;
@@ -146,7 +141,7 @@ private:
             scanf("%d", &input);
             fflush(stdin);
 
-            char tmp[] = "";
+            char tmp[100] = "";
             int n;
 
             switch (input) {
@@ -155,11 +150,11 @@ private:
                 case 1:
                     // ładowanie pliku o innej nazwie
                     printf("%s", "\nPodaj nazwe pliku: ");
-                    scanf("%s", tmp);
+                    scanf("%[^\n]", tmp);
                     fflush(stdin);
 
                     if (!fileExists(tmp)) {
-                        printf("%s", "\nPlik nie istnieje!\n\n");
+                        printf("\nPlik %s nie istnieje!\n\n", tmp);
                     } else {
                         file_name = tmp;
                         readTestData();
@@ -267,12 +262,12 @@ private:
 
             if (fileExists(file_name)) {
                 readTestData();
-//                ShortestPathReturn dijkstraReturn = graph_list->dijkstraShortestPath(startVertex);
-//                for (int i = 0; i < dijkstraReturn.distances.size(); ++i) {
-//                    if (dijkstraReturn.distances[i] == std::numeric_limits<int>::max()) {
-//                        isConnected = false;
-//                    }
-//                }
+                ShortestPathReturn dijkstraReturn = graph_list.dijkstraShortestPath(startVertex);
+                for (int i = 0; i < dijkstraReturn.distances.size(); ++i) {
+                    if (dijkstraReturn.distances[i] == std::numeric_limits<int>::max()) {
+                        isConnected = false;
+                    }
+                }
             }
             else{
                 isConnected = false;
@@ -302,22 +297,20 @@ private:
                     return;
 
                 case 1:
-                    readTestData();
-
-                    printf("%s", "\nPlik zostal zaladowany. \n\n");
+                    handleData();
                     break;
 
                 case 2:
                     cout << "Graf w zapisie macierzowym" << endl;
 
                     // Wyświetlanie macierzy sąsiedztwa
-                    graph_matrix->printMatrix();
+                    graph_matrix.printMatrix();
 
                     cout << endl;
 
                     cout << "Graf w zapisie listowym" << endl;
                     // Wyświetlanie listy sąsiedztwa
-                    graph_list->printList();
+                    graph_list.printList();
 
                     cout << endl;
                     break;
@@ -325,7 +318,7 @@ private:
                 case 3:
                     std::cout << std::endl;
                     {
-                        GraphMatrix primMST = graph_matrix->primMST();
+                        GraphMatrix primMST = graph_matrix.primMST();
                         std::cout << "Minimalne drzewo rozpinające (macierz, algorytm Prima):" << std::endl;
                         primMST.printMST();
                         std::cout << "MST = " << primMST.getEdgesSum() << std::endl;
@@ -333,7 +326,7 @@ private:
                     std::cout << std::endl;
                     {
                         std::cout << "Minimalne drzewo rozpinajace (lista, algorytm Prima):" << std::endl;
-                        GraphList primMST = graph_list->primMST();
+                        GraphList primMST = graph_list.primMST();
                         primMST.printList();
                         std::cout << "MST = " << primMST.getEdgesSum() << std::endl;
                     }
@@ -363,17 +356,17 @@ private:
 
                     long long int sumElapsedMatrix = 0;
                     long long int sumElapsedList = 0;
-                    int n = 10;
+                    int n = 100;
 
                     for(int i = 1;i<=n;i++){
                         this->generateData(verticlesNum,edgesNum);
 
                         start = read_QPC();
-                        GraphList primMST1 = graph_list->primMST();
+                        GraphList primMST1 = graph_list.primMST();
                         sumElapsedList += read_QPC() - start;
 
                         start = read_QPC();
-                        GraphMatrix primMST2 = graph_matrix->primMST();
+                        GraphMatrix primMST2 = graph_matrix.primMST();
                         sumElapsedMatrix = read_QPC() - start;
 
                         cout << "M-- Time [ms] = " << fixed << showpoint<< setprecision(3) << (1000.0 * sumElapsedMatrix) / frequency / i<< endl;
@@ -414,22 +407,20 @@ private:
                     return;
 
                 case 1:
-                    readTestData();
-
-                    printf("%s", "\nPlik zostal zaladowany. \n\n");
+                    handleData();
                     break;
 
                 case 2:
                     cout << "Graf w zapisie macierzowym" << endl;
 
                     // Wyświetlanie macierzy sąsiedztwa
-                    graph_matrix->printMatrix();
+                    graph_matrix.printMatrix();
 
                     cout << endl;
 
                     cout << "Graf w zapisie listowym" << endl;
                     // Wyświetlanie listy sąsiedztwa
-                    graph_list->printList();
+                    graph_list.printList();
 
                     cout << endl;
                     break;
@@ -439,30 +430,49 @@ private:
                     {
                         std::cout << "Najkrotsze drogi z wierzcholka " << startVertex
                                   << " (macierz, algorytm Dijkstry):" << std::endl;
-                        ShortestPathReturn dijkstraReturn = graph_matrix->dijkstraShortestPath(startVertex);
-                        std::cout << "Start = " << startVertex << std::endl;
-                        std::cout << "End \tDist  \tPath" << std::endl;
-                        for (int i = 0; i < dijkstraReturn.distances.size(); ++i) {
-                            std::cout << "| " << i << " \t| " << dijkstraReturn.distances[i] << " \t| "
-                                      << dijkstraReturn.paths[i] << std::endl;
+                        ShortestPathReturn dijkstraReturn = graph_matrix.dijkstraShortestPath(startVertex);
+
+                        if(dijkstraReturn.hasNegative){
+                            std::cout << "Graf zawiera ujemne krawedzie!" << std::endl;
+                        }
+                        else
+                        {
+                            std::cout << "Start = " << startVertex << std::endl;
+                            std::cout << "End \tDist  \tPath" << std::endl;
+                            for (int i = 0; i < dijkstraReturn.distances.size(); ++i) {
+                                if (dijkstraReturn.distances[i] == std::numeric_limits<int>::max()) {
+                                    std::cout << "| " << i << " \t| ∞   \t| "
+                                              << dijkstraReturn.paths[i] << std::endl;
+                                } else {
+                                    std::cout << "| " << i << " \t| " << dijkstraReturn.distances[i] << " \t| "
+                                              << dijkstraReturn.paths[i] << std::endl;
+                                }
+
+                            }
                         }
                     }
                     std::cout << std::endl;
                     {
                         std::cout << "Najkrotsze drogi z wierzcholka " << startVertex << " (lista, algorytm Dijkstry):"
                                   << std::endl;
-                        ShortestPathReturn dijkstraReturn = graph_list->dijkstraShortestPath(startVertex);
-                        std::cout << "Start = " << startVertex << std::endl;
-                        std::cout << "End \tDist  \tPath" << std::endl;
-                        for (int i = 0; i < dijkstraReturn.distances.size(); ++i) {
-                            if (dijkstraReturn.distances[i] == std::numeric_limits<int>::max()) {
-                                std::cout << "| " << i << " \t| ∞   \t| "
-                                          << dijkstraReturn.paths[i] << std::endl;
-                            } else {
-                                std::cout << "| " << i << " \t| " << dijkstraReturn.distances[i] << " \t| "
-                                          << dijkstraReturn.paths[i] << std::endl;
-                            }
+                        ShortestPathReturn dijkstraReturn = graph_list.dijkstraShortestPath(startVertex);
+                        if(dijkstraReturn.hasNegative){
+                            std::cout << "Graf zawiera ujemne krawedzie!" << std::endl;
+                        }
+                        else
+                        {
+                            std::cout << "Start = " << startVertex << std::endl;
+                            std::cout << "End \tDist  \tPath" << std::endl;
+                            for (int i = 0; i < dijkstraReturn.distances.size(); ++i) {
+                                if (dijkstraReturn.distances[i] == std::numeric_limits<int>::max()) {
+                                    std::cout << "| " << i << " \t| ∞   \t| "
+                                              << dijkstraReturn.paths[i] << std::endl;
+                                } else {
+                                    std::cout << "| " << i << " \t| " << dijkstraReturn.distances[i] << " \t| "
+                                              << dijkstraReturn.paths[i] << std::endl;
+                                }
 
+                            }
                         }
                     }
 
@@ -491,18 +501,24 @@ private:
 
                     long long int sumElapsedMatrix = 0;
                     long long int sumElapsedList = 0;
-                    int n = 1;
+                    int n = 100;
 
-                    for(int i = 0;i<n;i++){
+                    for(int i = 1;i<=n;i++){
                         this->generateData(verticlesNum,edgesNum);
 
                         start = read_QPC();
-                        ShortestPathReturn dijkstraReturn1 = graph_matrix->dijkstraShortestPath(startVertex);
+                        ShortestPathReturn dijkstraReturn_1 = graph_list.dijkstraShortestPath(startVertex);
                         sumElapsedList += read_QPC() - start;
 
                         start = read_QPC();
-                        ShortestPathReturn dijkstraReturn2 = graph_list->dijkstraShortestPath(startVertex);
+                        ShortestPathReturn dijkstraReturn_2 = graph_matrix.dijkstraShortestPath(startVertex);
                         sumElapsedMatrix = read_QPC() - start;
+
+                        cout << "M-- Time [ms] = " << fixed << showpoint<< setprecision(3) << (1000.0 * sumElapsedMatrix) / frequency / i<< endl;
+                        cout << "M-- Time [us] = " << fixed << showpoint<< setprecision(3) << (1000000.0 * sumElapsedMatrix) / frequency / i<< endl << endl;
+
+                        cout << "L-- Time [ms] = " << fixed << showpoint<< setprecision(3) << (1000.0 * sumElapsedList) / frequency / i<< endl;
+                        cout << "L-- Time [us] = " << fixed << showpoint<< setprecision(3) << (1000000.0 * sumElapsedList) / frequency / i<< endl << endl;
                     }
 
                     cout << "M Time [ms] = " << fixed << showpoint<< setprecision(3) << (1000.0 * sumElapsedMatrix) / frequency / n<< endl;
@@ -510,6 +526,7 @@ private:
 
                     cout << "L Time [ms] = " << fixed << showpoint<< setprecision(3) << (1000.0 * sumElapsedList) / frequency / n<< endl;
                     cout << "L Time [us] = " << fixed << showpoint<< setprecision(3) << (1000000.0 * sumElapsedList) / frequency / n<< endl << endl;
+
                     break;
             }
 
