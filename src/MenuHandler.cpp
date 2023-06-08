@@ -395,7 +395,7 @@ private:
         // pętla menu
         while (true) {
             printf("\n\n\n\n\n\n\n\n\n");
-            printf("%s", "\n# MST\n\n");
+            printf("%s", "\n# Shortest Path\n\n");
             // pokazanie menu tablicy
             printf("   1. Wczytaj z pliku\n   2. Wyswietl\n   3. Algorytm Dijkstry\n   4. Pomiar czasu \n   0. Powrot\n");
 
